@@ -1,0 +1,90 @@
+package com.example;
+
+
+import java.io.FileInputStream;
+
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+/**
+ * Unit test for simple App.
+ */
+public class AppTest 
+{
+    /**
+     * Rigorous Test :-)
+     */
+    WebDriver driver;
+    @BeforeMethod
+    public void setup(){
+        WebDriverManager.chromedriver().setup();
+        driver=new ChromeDriver();
+        driver.get("http://www.demoblaze.com");
+        driver.manage().window().maximize();
+    }
+    @Test
+    public void testcaseone() throws InterruptedException
+    {
+        driver.findElement(By.linkText("Laptops")).click();
+        Thread.sleep(5000);
+        driver.findElement(By.linkText("MacBook air")).click();
+        Thread.sleep(2000);
+        driver.findElement(By.linkText("Add to cart")).click();
+        Thread.sleep(2000);
+        driver.switchTo().alert().accept();
+        Thread.sleep(2000);
+        driver.findElement(By.linkText("Cart")).click();
+        Thread.sleep(5000);
+        WebElement titleEle=driver.findElement(By.xpath("/html/body/div[6]/div/div[1]/div/table/tbody/tr/td[2]"));
+		WebElement price=driver.findElement(By.xpath("/html/body/div[6]/div/div[1]/div/table/tbody/tr/td[3]"));
+		String title=titleEle.getText();
+		String p=price.getText();
+		System.out.println("Name: "+title+" Price: "+p);
+    }
+    @Test
+    public void testcasetwo() throws Exception {
+        FileInputStream fs = new FileInputStream("C:\\Users\\subas\\Downloads\\demoblaze.xlsx");
+        XSSFWorkbook workbook = new XSSFWorkbook(fs);
+        XSSFSheet login = workbook.getSheet("login");
+        XSSFRow r1 = login.getRow(1);
+        String username = r1.getCell(0).getStringCellValue();
+        String password = r1.getCell(1).getStringCellValue();
+        Thread.sleep(5000);
+        driver.findElement(By.linkText("Log in")).click();
+        driver.switchTo().activeElement();
+        Thread.sleep(5000);
+        driver.findElement(By.xpath("//*[@id='loginusername']"))
+                .sendKeys(username);
+        driver.findElement(By.xpath("//*[@id='loginpassword']"))
+                .sendKeys(password);
+        driver.findElement(By.xpath("//*[@id='logInModal']/div/div/div[3]/button[2]")).click();
+        Thread.sleep(5000);
+        System.out.println(username);
+        System.out.println(password);
+        Thread.sleep(5000);
+        WebElement name=driver.findElement(By.linkText("Welcome Testalpha"));
+        String s=name.getText();
+        if(s.equals("Welcome Testalpha"))
+        {
+            System.out.println("Message displayed");
+        }
+        else{
+            System.out.println("Message not displayed");
+        }
+        workbook.close();
+    }
+    @AfterMethod
+    public void closeMethod(){
+        driver.quit();
+    }
+}
