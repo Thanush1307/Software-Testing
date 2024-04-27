@@ -1,0 +1,75 @@
+package com.example;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
+import org.testng.annotations.Test;
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class AppTest {
+    static Logger log = Logger.getLogger(AppTest.class);
+    @Test
+    public void MyLog() throws Exception {
+        PropertyConfigurator.configure(("src/main/resources/log4j.properties"));
+        WebDriverManager.chromedriver().setup();
+        WebDriver driver = new ChromeDriver();
+        String path1 = "https://www.opentable.com/";
+        driver.get(path1);
+        log.info("Opened OpenTable");
+        FileInputStream fs = new FileInputStream("C:\\Users\\OrangeHRM.xlsx");
+        XSSFWorkbook workbook = new XSSFWorkbook(fs);
+        XSSFSheet sheet = workbook.getSheet("LOGIN");
+        XSSFRow row = sheet.getRow(2);
+        String place = row.getCell(0).getStringCellValue();
+        System.out.print(place);
+        driver.findElement(By.xpath("//*[@id='home-page-autocomplete-input']")).sendKeys(place);
+        Thread.sleep(2000);
+        driver.findElement(By.xpath("//*[@id=\"mainContent\"]/header/div/span/div/div/div[2]/div[2]/button")).click();
+        Thread.sleep(2000);
+        log.info("Entered Bangalore Option");
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("window.scrollBy(0,700)");
+        driver.findElement(By.xpath("//*[@id=\"mainContent\"]/div/section/div[6]/div/label[4]/span[2]")).click();
+        Thread.sleep(2000);
+        log.info("Clicked Asian from Cuisine");
+        driver.findElement(By.xpath("//*[@id=\"mainContent\"]/div/div/div[2]/div/div[2]/div[1]/div[1]/a/h6")).click();
+        Thread.sleep(2000);
+        ArrayList<String> tabs = new ArrayList<String>(driver.getWindowHandles());
+        driver.switchTo().window(tabs.get(1));
+        log.info("Switched to new Tab");
+        WebElement e = driver.findElement(By.xpath("//*[@id='restProfileMainContentDtpPartySizePicker']"));
+        Select dropdown = new Select(e);
+        dropdown.selectByVisibleText("4 people");
+        Thread.sleep(2000);
+        log.info("Selected People Count");
+        driver.findElement(By.xpath("//*[@id='restProfileMainContentDtpDayPicker-label']")).click();
+        driver.findElement(By.xpath(
+                "//*[@id=\"restProfileMainContentDtpDayPicker-wrapper\"]/div/div/div/table/tbody/tr[5]/td[3]/button"))
+                .click();
+        Thread.sleep(2000);
+        WebElement e1 = driver.findElement(By.xpath("//*[@id=\"restProfileMainContenttimePickerDtpPicker\"]"));
+        Select dropdown1 = new Select(e1);
+        dropdown1.selectByVisibleText("6:30 PM");
+        log.info("Selected Time");
+        Thread.sleep(3000);
+        driver.findElement(
+                By.xpath("//*[@id=\"mainContent\"]/div/div[2]/div[1]/section[2]/div[5]/article[1]/div/div[5]/button"))
+                .click();
+        Thread.sleep(2000);
+        driver.findElement(By.xpath("//*[@id='baseApp']/div/header/div[2]/div[2]/div[1]/button")).click();
+        Thread.sleep(2000);
+        log.info("Clicked Sign in");
+        driver.quit();
+    }
+}
